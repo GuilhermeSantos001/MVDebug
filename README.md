@@ -5,6 +5,12 @@ Great utility library that provides to big system debug.
 
 - Use this plugin in your project of RPG MAKER MV.
 
+- Create a folder 'system' in the root folder of your project.
+
+- When using the method 'console.runCodeFL' the script cannot be stopped through commands of this plugin.
+
+- Waiting for a release version.
+
 ### Console methods
 - Console.fileScanType
   - Determines the amount of functions, variables, strings, for(loop) and etc.
