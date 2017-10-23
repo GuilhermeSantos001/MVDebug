@@ -2,10 +2,10 @@
 // MVDebug
 // By LZOGames
 // MVDebug.js
-// Version: 1.00
+// Version: 1.01
 //=============================================================================
 /*:
- * @plugindesc v1.00 - Great utility library that provides to big system debug.
+ * @plugindesc v1.01 - Great utility library that provides to big system debug.
  *
  * @author GuilhermeSantos
  *
@@ -27,59 +27,86 @@
  * ==============================================================================
  *    Stay Up To Date
  * ==============================================================================
- * We advise that you regularly check to ensure that the MVC plugin is upto date.
+ * We advise that you regularly check to ensure that the MVD plugin is upto date.
  * Plugin updates will include things like bugfixes, code optimization, and of
  * course, new features, so it is highly recommended you have the latest version.
  *
- * You can get the latest version by going to any of the following web addresses;
- * http://link.hudell.com/mvcommons
+ * You can get the latest version by going to any of the following web addresses:
+ * https://github.com/GuilhermeSantos001/MVDebug
  */
 //=============================================================================
 // IMPORT PLUGIN
 //=============================================================================
 var Imported = Imported || {};
-Imported["GS_debuggEx"] = "1.00";
+Imported["GS_debuggEx"] = "1.01";
+
+var GS = GS || {};
+var MVDebug = {};
+var MVD = MVDebug;
+
+GS.MVDebug = MVDebug;
+GS.MVD = MVD;
 
 //=============================================================================
 // MVDEBUG MODULE
 //=============================================================================
-(function(_) {
+(function (_) {
   "use strict";
 
   //-----------------------------------------------------------------------------
   // Global Variables
   //
+
+  /** 
+   * @MVDebug {public}
+   * @description Array to save all codes that are being executed by the plugin.
+   * @type {array}
+   */
   var scriptsRun = [];
 
   //-----------------------------------------------------------------------------
   // Console
   //
-  console.fileScanType = function(fileName, filePath, readType, saveCache) {
+  console.fileScanType = function (fileName, filePath, readType, saveCache) {
     fileScanType.apply(this, arguments);
   };
 
-  console.fileScanFL = function(fileName, filePath) {
+  console.fileScanFL = function (fileName, filePath) {
     fileScanFL.apply(this, arguments);
   };
 
-  console.runCodeFL = function(fullYear, fileIndex) {
-    runCodeFL.apply(this, arguments);
-  }
+  console.runCode = function (fullYear, fileIndex) {
+    runCode.apply(this, arguments);
+  };
+
+  console.showfileInFolder = function (fileName, filePath, fileExtension) {
+    showfileInFolder.apply(this, arguments);
+  };
+
+  console.computerUsername = function () {
+    return computerUsername.call(this);
+  };
+
+  console.goGithub = function () {
+    goGithub.call(this);
+  };
 
   /**
+   * @MVDebug {private}
    * @description Creates the folder name for the cache, based on the current year.
    * @return {string} path to folder cache.
    */
-  var pathFileDebuggExCache = function() {
+  var pathFileDebuggExCache = function () {
     var timer = new Date();
     return 'system/debuggEx/cache_' + timer.getFullYear();
   };
 
   /**
+   * @MVDebug {private}
    * @description Creates the folder name for the run code, based on the current year.
    * @return {string} path to folder cache.
    */
-  var pathFileDebuggExCodeRun = function() {
+  var pathFileDebuggExCodeRun = function () {
     var timer = new Date();
     return 'system/debuggEx/codeRun_' + timer.getFullYear();
   };
@@ -88,7 +115,7 @@ Imported["GS_debuggEx"] = "1.00";
    * @description Let the first letter in uppercase.
    * @return {string}
    */
-  String.prototype.oneLettertoUpperCase = function() {
+  String.prototype.oneLettertoUpperCase = function () {
     return this[0].toUpperCase() + this.substr(1, this.length);
   };
 
@@ -98,15 +125,17 @@ Imported["GS_debuggEx"] = "1.00";
    * @description Scene_Boot.prototype.initialize
    */
   const sceneBoot_initialize = Scene_Boot.prototype.initialize;
-  Scene_Boot.prototype.initialize = function() {
+  Scene_Boot.prototype.initialize = function () {
     sceneBoot_initialize.call(this);
     welcomeMessageSystem(Imported["GS_debuggEx"]);
+    createFolderSystem();
     createFolderDebuggEx();
     createFolderDebuggExCodeRun();
     createFolderDebuggExFilesCache();
   };
 
   /**
+   * @MVDebug {private}
    * @description Show welcome message of system.
    * @param systemVersion {string} The version of the code.
    */
@@ -131,6 +160,7 @@ Imported["GS_debuggEx"] = "1.00";
 
 
   /**
+   * @MVDebug {private}
    * @description Give a the path to the folder indicated.
    * @param p {string} The path to convertion.
    * @return {string}
@@ -143,6 +173,22 @@ Imported["GS_debuggEx"] = "1.00";
   };
 
   /**
+   * @MVDebug {private}
+   * @description Create a directory to system.
+   * @return {null}
+   */
+  function createFolderSystem() {
+    var fs = require('fs');
+    var pathFolder = localPath('system');
+    if (!fs.existsSync(pathFolder)) {
+      fs.mkdirSync(pathFolder);
+      var message = '%c ✰ Create a directory to system ✰ ';
+      console.info(message, 'background: #232323; font-size: 120%; color: #ffffff');
+    }
+  };
+
+  /**
+   * @MVDebug {private}
    * @description Create a directory to system of debug.
    * @return {null}
    */
@@ -157,6 +203,7 @@ Imported["GS_debuggEx"] = "1.00";
   };
 
   /**
+   * @MVDebug {private}
    * @description Create a directory to system of debug.
    * @return {null}
    */
@@ -172,6 +219,7 @@ Imported["GS_debuggEx"] = "1.00";
   };
 
   /**
+   * @MVDebug {private}
    * @description Create a directory to files in cache after scan.
    * @return {null}
    */
@@ -187,6 +235,36 @@ Imported["GS_debuggEx"] = "1.00";
   };
 
   /** 
+   * @MVDebug {public}
+   * @description Opens the github of script in your default browser.
+   */
+  function goGithub() {
+    if (Utils.isNwjs()) {
+      var gui = require('nw.gui');
+      var url = MVDebug.github || '';
+      var http = null;
+      if (url.substring(0, 5).match(/https/) || url.substring(0, 5).match(/http/)) {
+        http = true;
+      }
+      if (http) {
+        gui.Shell.openExternal(MVDebug.github);
+      }
+    }
+  };
+
+  /** 
+   * @MVDebug {public}
+   * @description Returns the username of the computer.
+   * @return {string}
+   */
+  function computerUsername() {
+    if (process && process.env) {
+      return process.env['USERNAME'];
+    }
+  };
+
+  /** 
+   * @MVDebug {public}
    * @description Determines the amount of functions, variables, strings, for(loop) and etc.
    * @param fileName {string} the name of file.
    * @param filePath {string} the path of file.
@@ -206,7 +284,7 @@ Imported["GS_debuggEx"] = "1.00";
       const rl = readline.createInterface({
         input: readStream
       });
-      rl.on('line', function(line) {
+      rl.on('line', function (line) {
         linesCout++;
         var linesCoutString = linesCout.padZero(2);
         if (typeRead(readType, line)) {
@@ -289,7 +367,7 @@ Imported["GS_debuggEx"] = "1.00";
             );
           }
         }
-      }).on('close', function() {
+      }).on('close', function () {
         var groupName = '%c ✰ ' + readType.oneLettertoUpperCase() + ' debug to(' + '%c' + pluginPath + '.js' + '%c) is completed ✰ ';
         showMessageComplete(groupName);
         if (saveCache) saveInCache(groupName);
@@ -461,7 +539,7 @@ Imported["GS_debuggEx"] = "1.00";
         line.indexOf(')'),
         line.indexOf('{')
       ];
-      var requisites = function() {
+      var requisites = function () {
         if (requisitesIsValid[0] > -1 &&
           requisitesIsValid[1] > -1 &&
           requisitesIsValid[2] > -1) return true;
@@ -480,7 +558,7 @@ Imported["GS_debuggEx"] = "1.00";
         line.toLowerCase().indexOf('new'),
         line.toLowerCase().indexOf('string'),
       ];
-      var requisites = function() {
+      var requisites = function () {
         if (requisitesIsValid[0] > -1 || requisitesIsValid[1] > -1 ||
           requisitesIsValid[2] > -1 && requisitesIsValid[3] > -1 &&
           requisitesIsValid[4] > -1 && requisitesIsValid[5] > -1) return true;
@@ -497,12 +575,12 @@ Imported["GS_debuggEx"] = "1.00";
         line.toLowerCase().indexOf('new'),
         line.toLowerCase().indexOf('number')
       ];
-      var requisites = function() {
+      var requisites = function () {
         if (requisitesIsValid[0] > -1 && requisitesIsValid[1] > -1 &&
           requisitesIsValid[2] > -1 && requisitesIsValid[3] > -1) return true;
       }
 
-      var numberIsValid = function() {
+      var numberIsValid = function () {
         var string = line;
         var equalIndex = string.indexOf('=');
         var stringLength = string.length;
@@ -535,7 +613,7 @@ Imported["GS_debuggEx"] = "1.00";
         line.toLowerCase().indexOf('new'),
         line.toLowerCase().indexOf('array')
       ];
-      var arrayIsValid = function() {
+      var arrayIsValid = function () {
         var string = line;
         var equalIndex = string.indexOf('=');
         var stringLength = string.length;
@@ -553,7 +631,7 @@ Imported["GS_debuggEx"] = "1.00";
           return true;
         }
       }
-      var requisites = function() {
+      var requisites = function () {
         if (requisitesIsValid[0] > -1 &&
           requisitesIsValid[1] > -1 &&
           requisitesIsValid[2] > -1 &&
@@ -573,14 +651,14 @@ Imported["GS_debuggEx"] = "1.00";
         line.indexOf(')'),
         line.indexOf('{')
       ];
-      var requisites = function() {
+      var requisites = function () {
         if (requisitesIsValid[0] == -1 &&
           requisitesIsValid[1] == -1 &&
           requisitesIsValid[2] > -1 &&
           requisitesIsValid[3] > -1 &&
           requisitesIsValid[4] > -1) return true;
       }
-      var forIsValid = function() {
+      var forIsValid = function () {
         var string = line;
         var equalIndex = string.indexOf('=');
         var stringLength = string.length;
@@ -618,12 +696,12 @@ Imported["GS_debuggEx"] = "1.00";
         line.toLowerCase().indexOf('new'),
         line.toLowerCase().indexOf('boolean')
       ];
-      var requisites = function() {
+      var requisites = function () {
         if (requisitesIsValid[0] > -1 && requisitesIsValid[1] > -1 &&
           requisitesIsValid[2] > -1 && requisitesIsValid[3] > -1) return true;
       }
 
-      var booleanIsValid = function() {
+      var booleanIsValid = function () {
         var string = line;
         var equalIndex = string.indexOf('=');
         var stringLength = string.length;
@@ -654,13 +732,13 @@ Imported["GS_debuggEx"] = "1.00";
         line.indexOf(')'),
         line.indexOf('{')
       ];
-      var requisites = function() {
+      var requisites = function () {
         if (requisitesIsValid[0] > -1 &&
           requisitesIsValid[1] > -1 &&
           requisitesIsValid[2] > -1 &&
           requisitesIsValid[3] > -1) return true;
       }
-      var forinIsValid = function() {
+      var forinIsValid = function () {
         var string = line;
         var equalIndex = string.indexOf('=');
         var stringLength = string.length;
@@ -687,7 +765,7 @@ Imported["GS_debuggEx"] = "1.00";
     };
 
     function readVariable(line) {
-      var varIsValid = function() {
+      var varIsValid = function () {
         var string = line;
         var stringLength = string.length;
         var stringValue = '';
@@ -712,11 +790,11 @@ Imported["GS_debuggEx"] = "1.00";
         line.indexOf('('),
         line.indexOf(')')
       ];
-      var requisites = function() {
+      var requisites = function () {
         if (requisitesIsValid[0] > -1 &&
           requisitesIsValid[1] > -1) return true;
       }
-      var requireValid = function() {
+      var requireValid = function () {
         var string = line;
         var equalIndex = string.indexOf('=');
         var stringLength = string.length;
@@ -748,13 +826,13 @@ Imported["GS_debuggEx"] = "1.00";
         line.indexOf(')'),
         line.indexOf('{')
       ];
-      var requisites = function() {
+      var requisites = function () {
         if (requisitesIsValid[0] > -1 &&
           requisitesIsValid[1] > -1 &&
           requisitesIsValid[2] > -1 &&
           requisitesIsValid[3] > -1) return true;
       }
-      var forofIsValid = function() {
+      var forofIsValid = function () {
         var string = line;
         var equalIndex = string.indexOf('=');
         var stringLength = string.length;
@@ -782,28 +860,37 @@ Imported["GS_debuggEx"] = "1.00";
   };
 
   /** 
+   * @MVDebug {public}
    * @description Creates a file based on the favorites lines.
    * @param fileName {string} the name of file.
    * @param filePath {string} the path of file.
+   * @param FLText {string} the text of favorite lines.
+   * @param FLTextEnd {string} the end text of favorite lines.
    */
-  function fileScanFL(fileName, filePath) {
+  function fileScanFL(fileName, filePath, FLText, FLTextEnd) {
     var fs = require('fs');
     var pluginPath = fileName;
     var filePath = localPath(filePath + '/') + pluginPath + '.js';
     var fl_active = null;
     var fl_lines = [];
+    var fl_text = FLText.replace(/\s{1,}/g, '').trim().toLowerCase();
+    var fl_text_end = FLTextEnd.replace(/\s{1,}/g, '').trim().toLowerCase();
+    if (fl_text === fl_text_end) {
+      var message = '%c The parameter {FLText: ' + fl_text_end + '} is equal the parameter {FLTextEnd: ' + fl_text_end + '} ';
+      return console.log(message, 'background: #800000; font-size: 120%; color: #ffffff');
+    }
     if (fs.existsSync(filePath)) {
       const readline = require('readline');
       const readStream = fs.createReadStream(filePath);
       const rl = readline.createInterface({
         input: readStream
       });
-      rl.on('line', function(line) {
+      rl.on('line', function (line) {
         isFavoriteLine(line);
         if (fl_active) {
           fl_lines.push(line);
         }
-      }).on('close', function() {
+      }).on('close', function () {
         var groupName = '%c ✰ Debug favorite lines(FL) to (' + '%c' + pluginPath + '.js' + '%c) is completed ✰ ';
         writeFileSync();
       });
@@ -821,19 +908,20 @@ Imported["GS_debuggEx"] = "1.00";
         var completeHour = hours.padZero(2) + '_' + minutes.padZero(2) + '_' + seconds.padZero(2);
 
         var fl_path = localPath(pathFileDebuggExCodeRun()) + '\\' + 'CodeRun_file_' + pluginPath + '_date_' + completeDate + '_time_' + completeHour + '.js';
-        console.log(fl_path)
         fs.writeFileSync(fl_path, fl_lines.join('\r\n'));
       }
 
       function isFavoriteLine(line) {
-        var string_fl_index = line.indexOf('fl');
-        var string_fl = line.substr(string_fl_index, 2);
-        var string_fl_end_index = line.indexOf('fl_end');
-        var string_fl_end = line.substr(string_fl_end_index, 6);
-        if (string_fl.trim().toLowerCase() == 'fl') {
+        var string_fl_index = line.indexOf(fl_text);
+        var string_fl_end_index = line.indexOf(fl_text_end);
+        var string_fl_line = line.replace(/\s{1,}/g, '');
+        var string_fl_line = string_fl_line.replace(/[\/, \/]/g, '');
+        var string_fl_line_end = line.replace(/\s{1,}/g, '');
+        var string_fl_line_end = string_fl_line_end.replace(/[\/, \/]/g, '');
+        if (string_fl_line.trim().toLowerCase() == fl_text) {
           fl_active = true;
         }
-        if (string_fl_end.trim().toLowerCase() == 'fl_end') {
+        if (string_fl_line_end.trim().toLowerCase() == fl_text_end) {
           fl_active = false;
         }
       }
@@ -845,13 +933,14 @@ Imported["GS_debuggEx"] = "1.00";
         var tagReplace = false;
         for (; i < length; i++) {
           var string_fl_value = fl_lines[i];
-          var string_fl_index = string_fl_value.indexOf('fl');
-          var string_fl = string_fl_value.substr(string_fl_index, 2);
-          if (string_fl.trim().toLowerCase() == 'fl') {
+          var string_fl_index = string_fl_value.indexOf(fl_text);
+          var string_fl_line = string_fl_value.replace(/\s{1,}/g, '');
+          var string_fl_line = string_fl_line.replace(/[\/, \/]/g, '');
+          if (string_fl_line.trim().toLowerCase() == fl_text) {
             tagIndex.push(i);
           }
         }
-        tagIndex.filter(function(tag) {
+        tagIndex.filter(function (tag) {
           if (!tagReplace) {
             fl_lines[tag] = '/**\n' +
               ' * LZOGames\n' +
@@ -867,11 +956,12 @@ Imported["GS_debuggEx"] = "1.00";
   };
 
   /** 
+   * @MVDebug {public}
    * @description Runs the scripts are saved in the folder "codeRun"
    * @param fullYear {number | array} the year of folder.
    * @param fileIndex {number | array} the index of file.
    */
-  function runCodeFL(fullYear, fileIndex) {
+  function runCode(fullYear, fileIndex) {
     var fs = require('fs');
     var pathfullYear = getfolderPath();
     var pathFileIndex = getFileIndex();
@@ -930,7 +1020,7 @@ Imported["GS_debuggEx"] = "1.00";
 
     function codeAlreadyRun(scriptSrc) {
       var scriptRun = false;
-      scriptsRun.filter(function(src) {
+      scriptsRun.filter(function (src) {
         if (src == scriptSrc) scriptRun = true;
       });
       return scriptRun;
@@ -943,7 +1033,7 @@ Imported["GS_debuggEx"] = "1.00";
         var folderPath = localPath('system/debuggEx/codeRun_' + pathfullYear);
         if (fs.existsSync(folderPath)) {
           var folderFiles = fs.readdirSync(folderPath);
-          pathFileIndex.filter(function(fileIndex) {
+          pathFileIndex.filter(function (fileIndex) {
             var file = folderFiles[fileIndex - 1];
             if (file) {
               var filePath = folderPath + '\\' + file;
@@ -956,16 +1046,71 @@ Imported["GS_debuggEx"] = "1.00";
         }
       }
     } else {
-      var groupName = '%c The parameters are not supported, function (runCodeFL)';
+      var groupName = '%c The parameters are not supported, function (runCode) ';
       console.group(groupName,
         'background: #ec0000; font-size: 120%; color: #ffffff'
       );
-      var message = '%c The parameters that are supported are: number or array';
+      var message = '%c The parameters that are supported are: number or array ';
       console.log(message, 'background: #ec0000; font-size: 120%; color: #ffffff');
       console.groupEnd(groupName);
     }
   };
-})();
+
+  /** 
+   * @MVDebug {public}
+   * @description Shows the file in folder of project.
+   * @param fileName {string} the name of file.
+   * @param filePath {string} the path of file.
+   * @param fileExtension {string} the extension of file.
+   */
+  function showfileInFolder(fileName, filePath, fileExtension) {
+    if (typeof fileName == 'number' || typeof filePath == 'number' ||
+      typeof fileExtension == 'number' || typeof fileName == 'object' ||
+      typeof filePath == 'object' || typeof fileExtension == 'object') {
+      var groupName = '%c The parameters are not supported, function (showfileInFolder) ';
+      console.group(groupName,
+        'background: #ec0000; font-size: 120%; color: #ffffff'
+      );
+      var message = '%c The parameter(fileName) are supported: string ';
+      console.log(message, 'background: #ec0000; font-size: 120%; color: #ffffff');
+      var message = '%c The parameter(filePath) are supported: string or boolean ';
+      console.log(message, 'background: #ec0000; font-size: 120%; color: #ffffff');
+      var message = '%c The parameter(fileExtension) are supported: string ';
+      console.log(message, 'background: #ec0000; font-size: 120%; color: #ffffff');
+      console.groupEnd(groupName); return;
+    }
+    var fs = require('fs');
+    if (!filePath || filePath == '') {
+      var pathFile = localPath(fileName + '.' + fileExtension);
+    } else {
+      var pathFile = localPath(filePath) + '\\' + fileName + '.' + fileExtension;
+    }
+    if (fs.existsSync(pathFile)) {
+      if (Utils.isNwjs()) {
+        var gui = require('nw.gui');
+        gui.Shell.showItemInFolder(pathFile);
+      }
+    } else {
+      var message = '%c The file (' + fileName + '.' + fileExtension + ') no exist ';
+      console.log(message, 'background: #ec0000; font-size: 120%; color: #ffffff');
+    }
+  };
+
+  //-----------------------------------------------------------------------------
+  // MVDebug - IMPORT CODE
+  //  
+  MVDebug.scriptRun = scriptsRun;
+  MVDebug.fileScanType = fileScanType;
+  MVDebug.fileScanFL = fileScanFL;
+  MVDebug.runCode = runCode;
+  MVDebug.showfileInFolder = showfileInFolder;
+  MVDebug.latestVersion = Imported["GS_debuggEx"];
+  MVDebug.releaseDate = '10/20/2017';
+  MVDebug.github = 'https://github.com/GuilhermeSantos001/MVDebug';
+  MVDebug.goGithub = goGithub;
+  MVDebug.computerUsername = computerUsername;
+
+})(MVDebug);
 //=============================================================================
 //           ✰ LZOGAMES ✰ KADOKAWA ✰ Yoji Ojima ✰ Degica ✰
 //=============================================================================
