@@ -28,6 +28,8 @@
     - Creates a file based on the favorites lines.
     - fileName {string} the name of file.
     - filePath {string} the path of file.
+    - FLText {string} the text of favorite lines.
+    - FLTextEnd {string} the end text of favorite lines.
 
 - Console.runCode
     - Runs the scripts are saved in the folder "codeRun"

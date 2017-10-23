@@ -71,7 +71,7 @@ GS.MVD = MVD;
     fileScanType.apply(this, arguments);
   };
 
-  console.fileScanFL = function (fileName, filePath) {
+  console.fileScanFL = function (fileName, filePath, FLText, FLTextEnd) {
     fileScanFL.apply(this, arguments);
   };
 
