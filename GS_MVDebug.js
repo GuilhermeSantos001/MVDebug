@@ -1,14 +1,18 @@
-//=============================================================================
+//===============================================================================
 // MVDebug
 // By LZOGames
-// MVDebug.js
-// Version: 1.01
-//=============================================================================
+// GS_MVDebug.js
+// Version: 1.06
+//===============================================================================
 /*:
- * @plugindesc v1.01 - Great utility library that provides to big system debug.
+ * @plugindesc v1.06 - Great utility library that provides to big system debug.
  *
  * @author GuilhermeSantos
  *
+ * @param GitHub url
+ * @desc url for github of project.
+ * @default https://github.com/GuilhermeSantos001/MVDebug
+ * 
  * @help
  * ==============================================================================
  *    Introduction
@@ -34,11 +38,11 @@
  * You can get the latest version by going to any of the following web addresses:
  * https://github.com/GuilhermeSantos001/MVDebug
  */
-//=============================================================================
+//===============================================================================
 // IMPORT PLUGIN
-//=============================================================================
+//===============================================================================
 var Imported = Imported || {};
-Imported["GS_debuggEx"] = "1.01";
+Imported["GS_debuggEx"] = "1.06";
 
 var GS = GS || {};
 var MVDebug = {};
@@ -47,11 +51,17 @@ var MVD = MVDebug;
 GS.MVDebug = MVDebug;
 GS.MVD = MVD;
 
-//=============================================================================
+//===============================================================================
 // MVDEBUG MODULE
-//=============================================================================
-(function (_) {
+//===============================================================================
+(function(_) {
   "use strict";
+
+  //-----------------------------------------------------------------------------
+  // Parameters
+  //
+  var params = PluginManager.parameters('GS_MVDebug');
+  var url_github = String(params['GitHub url']) || 'https://github.com/GuilhermeSantos001/MVDebug';
 
   //-----------------------------------------------------------------------------
   // Global Variables
@@ -65,29 +75,67 @@ GS.MVD = MVD;
   var scriptsRun = [];
 
   //-----------------------------------------------------------------------------
+  // PluginManager
+  //
+
+  /**
+   * @description The path for folder the plugins.
+   */
+  PluginManager._pathDebugEx = localPath(pathFileDebuggExCodePlugins());
+
+  /**
+   * @description Setup new plugin.
+   */
+  PluginManager.setupDebugEx = function(plugin) {
+    if (plugin.status && !this._scripts.contains(plugin.name)) {
+      this.setParameters(plugin.name, plugin.parameters);
+      this.loadScriptDebugEx(plugin.name);
+      this._scripts.push(plugin.name);
+    }
+  };
+
+  /**
+   * @description Load plugin.
+   */
+  PluginManager.loadScriptDebugEx = function(name) {
+    var url = this._pathDebugEx + '\\' + name + '.js';
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = url;
+    script.async = false;
+    script.onerror = this.onError.bind(this);
+    script._url = url;
+    document.body.appendChild(script);
+  };
+
+  //-----------------------------------------------------------------------------
   // Console
   //
-  console.fileScanType = function (fileName, filePath, readType, saveCache) {
+  console.fileScanType = function(fileName, filePath, readType, saveCache) {
     fileScanType.apply(this, arguments);
   };
 
-  console.fileScanFL = function (fileName, filePath, FLText, FLTextEnd) {
+  console.fileScanFL = function(fileName, filePath, FLText, FLTextEnd) {
     fileScanFL.apply(this, arguments);
   };
 
-  console.runCode = function (fullYear, fileIndex) {
+  console.runCode = function(fullYear, fileIndex) {
     runCode.apply(this, arguments);
   };
 
-  console.showfileInFolder = function (fileName, filePath, fileExtension) {
+  console.showfileInFolder = function(fileName, filePath, fileExtension) {
     showfileInFolder.apply(this, arguments);
   };
 
-  console.computerUsername = function () {
+  console.fileWriteDS = function(fileName, fileConfig) {
+    fileWriteDS.apply(this, arguments);
+  };
+
+  console.computerUsername = function() {
     return computerUsername.call(this);
   };
 
-  console.goGithub = function () {
+  console.goGithub = function() {
     goGithub.call(this);
   };
 
@@ -96,7 +144,7 @@ GS.MVD = MVD;
    * @description Creates the folder name for the cache, based on the current year.
    * @return {string} path to folder cache.
    */
-  var pathFileDebuggExCache = function () {
+  function pathFileDebuggExCache() {
     var timer = new Date();
     return 'system/debuggEx/cache_' + timer.getFullYear();
   };
@@ -106,16 +154,26 @@ GS.MVD = MVD;
    * @description Creates the folder name for the run code, based on the current year.
    * @return {string} path to folder cache.
    */
-  var pathFileDebuggExCodeRun = function () {
+  function pathFileDebuggExCodeRun() {
     var timer = new Date();
     return 'system/debuggEx/codeRun_' + timer.getFullYear();
+  };
+
+  /**
+   * @MVDebug {private}
+   * @description Creates the folder name for the plugins.
+   * @return {string} path to folder cache.
+   */
+  function pathFileDebuggExCodePlugins() {
+    var timer = new Date();
+    return 'system/debuggEx/codePlugins';
   };
 
   /**
    * @description Let the first letter in uppercase.
    * @return {string}
    */
-  String.prototype.oneLettertoUpperCase = function () {
+  String.prototype.oneLettertoUpperCase = function() {
     return this[0].toUpperCase() + this.substr(1, this.length);
   };
 
@@ -125,7 +183,7 @@ GS.MVD = MVD;
    * @description Scene_Boot.prototype.initialize
    */
   const sceneBoot_initialize = Scene_Boot.prototype.initialize;
-  Scene_Boot.prototype.initialize = function () {
+  Scene_Boot.prototype.initialize = function() {
     sceneBoot_initialize.call(this);
     welcomeMessageSystem(Imported["GS_debuggEx"]);
     createFolderSystem();
@@ -234,6 +292,22 @@ GS.MVD = MVD;
     }
   };
 
+  /**
+   * @MVDebug {private}
+   * @description Create a directory to files in cache after scan.
+   * @return {null}
+   */
+  function createFolderDebuggExFilesCache() {
+    var fs = require('fs');
+    var pathFolder = localPath('system/debuggEx');
+    var pathFolderFilesCache = localPath(pathFileDebuggExCodePlugins());
+    if (fs.existsSync(pathFolder) && !fs.existsSync(pathFolderFilesCache)) {
+      fs.mkdirSync(pathFolderFilesCache);
+      var message = '%c ✰ Create a directory to plugins ✰ ';
+      console.info(message, 'background: #232323; font-size: 120%; color: #ffffff');
+    }
+  };
+
   /** 
    * @MVDebug {public}
    * @description Opens the github of script in your default browser.
@@ -284,7 +358,7 @@ GS.MVD = MVD;
       const rl = readline.createInterface({
         input: readStream
       });
-      rl.on('line', function (line) {
+      rl.on('line', function(line) {
         linesCout++;
         var linesCoutString = linesCout.padZero(2);
         if (typeRead(readType, line)) {
@@ -367,7 +441,7 @@ GS.MVD = MVD;
             );
           }
         }
-      }).on('close', function () {
+      }).on('close', function() {
         var groupName = '%c ✰ ' + readType.oneLettertoUpperCase() + ' debug to(' + '%c' + pluginPath + '.js' + '%c) is completed ✰ ';
         showMessageComplete(groupName);
         if (saveCache) saveInCache(groupName);
@@ -539,7 +613,7 @@ GS.MVD = MVD;
         line.indexOf(')'),
         line.indexOf('{')
       ];
-      var requisites = function () {
+      var requisites = function() {
         if (requisitesIsValid[0] > -1 &&
           requisitesIsValid[1] > -1 &&
           requisitesIsValid[2] > -1) return true;
@@ -558,7 +632,7 @@ GS.MVD = MVD;
         line.toLowerCase().indexOf('new'),
         line.toLowerCase().indexOf('string'),
       ];
-      var requisites = function () {
+      var requisites = function() {
         if (requisitesIsValid[0] > -1 || requisitesIsValid[1] > -1 ||
           requisitesIsValid[2] > -1 && requisitesIsValid[3] > -1 &&
           requisitesIsValid[4] > -1 && requisitesIsValid[5] > -1) return true;
@@ -575,12 +649,12 @@ GS.MVD = MVD;
         line.toLowerCase().indexOf('new'),
         line.toLowerCase().indexOf('number')
       ];
-      var requisites = function () {
+      var requisites = function() {
         if (requisitesIsValid[0] > -1 && requisitesIsValid[1] > -1 &&
           requisitesIsValid[2] > -1 && requisitesIsValid[3] > -1) return true;
       }
 
-      var numberIsValid = function () {
+      var numberIsValid = function() {
         var string = line;
         var equalIndex = string.indexOf('=');
         var stringLength = string.length;
@@ -613,7 +687,7 @@ GS.MVD = MVD;
         line.toLowerCase().indexOf('new'),
         line.toLowerCase().indexOf('array')
       ];
-      var arrayIsValid = function () {
+      var arrayIsValid = function() {
         var string = line;
         var equalIndex = string.indexOf('=');
         var stringLength = string.length;
@@ -631,7 +705,7 @@ GS.MVD = MVD;
           return true;
         }
       }
-      var requisites = function () {
+      var requisites = function() {
         if (requisitesIsValid[0] > -1 &&
           requisitesIsValid[1] > -1 &&
           requisitesIsValid[2] > -1 &&
@@ -651,14 +725,14 @@ GS.MVD = MVD;
         line.indexOf(')'),
         line.indexOf('{')
       ];
-      var requisites = function () {
+      var requisites = function() {
         if (requisitesIsValid[0] == -1 &&
           requisitesIsValid[1] == -1 &&
           requisitesIsValid[2] > -1 &&
           requisitesIsValid[3] > -1 &&
           requisitesIsValid[4] > -1) return true;
       }
-      var forIsValid = function () {
+      var forIsValid = function() {
         var string = line;
         var equalIndex = string.indexOf('=');
         var stringLength = string.length;
@@ -696,12 +770,12 @@ GS.MVD = MVD;
         line.toLowerCase().indexOf('new'),
         line.toLowerCase().indexOf('boolean')
       ];
-      var requisites = function () {
+      var requisites = function() {
         if (requisitesIsValid[0] > -1 && requisitesIsValid[1] > -1 &&
           requisitesIsValid[2] > -1 && requisitesIsValid[3] > -1) return true;
       }
 
-      var booleanIsValid = function () {
+      var booleanIsValid = function() {
         var string = line;
         var equalIndex = string.indexOf('=');
         var stringLength = string.length;
@@ -732,13 +806,13 @@ GS.MVD = MVD;
         line.indexOf(')'),
         line.indexOf('{')
       ];
-      var requisites = function () {
+      var requisites = function() {
         if (requisitesIsValid[0] > -1 &&
           requisitesIsValid[1] > -1 &&
           requisitesIsValid[2] > -1 &&
           requisitesIsValid[3] > -1) return true;
       }
-      var forinIsValid = function () {
+      var forinIsValid = function() {
         var string = line;
         var equalIndex = string.indexOf('=');
         var stringLength = string.length;
@@ -765,7 +839,7 @@ GS.MVD = MVD;
     };
 
     function readVariable(line) {
-      var varIsValid = function () {
+      var varIsValid = function() {
         var string = line;
         var stringLength = string.length;
         var stringValue = '';
@@ -790,11 +864,11 @@ GS.MVD = MVD;
         line.indexOf('('),
         line.indexOf(')')
       ];
-      var requisites = function () {
+      var requisites = function() {
         if (requisitesIsValid[0] > -1 &&
           requisitesIsValid[1] > -1) return true;
       }
-      var requireValid = function () {
+      var requireValid = function() {
         var string = line;
         var equalIndex = string.indexOf('=');
         var stringLength = string.length;
@@ -826,13 +900,13 @@ GS.MVD = MVD;
         line.indexOf(')'),
         line.indexOf('{')
       ];
-      var requisites = function () {
+      var requisites = function() {
         if (requisitesIsValid[0] > -1 &&
           requisitesIsValid[1] > -1 &&
           requisitesIsValid[2] > -1 &&
           requisitesIsValid[3] > -1) return true;
       }
-      var forofIsValid = function () {
+      var forofIsValid = function() {
         var string = line;
         var equalIndex = string.indexOf('=');
         var stringLength = string.length;
@@ -885,12 +959,12 @@ GS.MVD = MVD;
       const rl = readline.createInterface({
         input: readStream
       });
-      rl.on('line', function (line) {
+      rl.on('line', function(line) {
         isFavoriteLine(line);
         if (fl_active) {
           fl_lines.push(line);
         }
-      }).on('close', function () {
+      }).on('close', function() {
         var groupName = '%c ✰ Debug favorite lines(FL) to (' + '%c' + pluginPath + '.js' + '%c) is completed ✰ ';
         writeFileSync();
       });
@@ -940,11 +1014,23 @@ GS.MVD = MVD;
             tagIndex.push(i);
           }
         }
-        tagIndex.filter(function (tag) {
+        tagIndex.filter(function(tag) {
+          var date = new Date();
+          var h = date.getHours().padZero(2);
+          var m = date.getMinutes().padZero(2);
+          var s = date.getSeconds().padZero(2);
+          var hms = h + ':' + m + ':' + s;
+          var d = date.getDate().padZero(2);
+          var nm = date.getMonth().padZero(2);
+          var fy = date.getFullYear().padZero(2);
+          var dnf = d + '/' + nm + '/' + fy;
           if (!tagReplace) {
             fl_lines[tag] = '/**\n' +
               ' * LZOGames\n' +
               ' * Debug system v' + Imported["GS_debuggEx"] + '\n' +
+              ' * --- --- --- ---' + '\n' +
+              ' * Date: ' + dnf + '\n' +
+              ' * Time: ' + hms + '\n' +
               ' */';
             tagReplace = true;
           } else {
@@ -1020,7 +1106,7 @@ GS.MVD = MVD;
 
     function codeAlreadyRun(scriptSrc) {
       var scriptRun = false;
-      scriptsRun.filter(function (src) {
+      scriptsRun.filter(function(src) {
         if (src == scriptSrc) scriptRun = true;
       });
       return scriptRun;
@@ -1033,7 +1119,7 @@ GS.MVD = MVD;
         var folderPath = localPath('system/debuggEx/codeRun_' + pathfullYear);
         if (fs.existsSync(folderPath)) {
           var folderFiles = fs.readdirSync(folderPath);
-          pathFileIndex.filter(function (fileIndex) {
+          pathFileIndex.filter(function(fileIndex) {
             var file = folderFiles[fileIndex - 1];
             if (file) {
               var filePath = folderPath + '\\' + file;
@@ -1077,7 +1163,8 @@ GS.MVD = MVD;
       console.log(message, 'background: #ec0000; font-size: 120%; color: #ffffff');
       var message = '%c The parameter(fileExtension) are supported: string ';
       console.log(message, 'background: #ec0000; font-size: 120%; color: #ffffff');
-      console.groupEnd(groupName); return;
+      console.groupEnd(groupName);
+      return;
     }
     var fs = require('fs');
     if (!filePath || filePath == '') {
@@ -1096,21 +1183,110 @@ GS.MVD = MVD;
     }
   };
 
+  /** 
+   * @MVDebug {public}
+   * @description Create a default struct for new plugin.
+   * @param fileName {string} the name of file.
+   * @param fileConfig {object} the config of file.
+   */
+  function fileWriteDS(fileName, fileConfig) {
+    fileConfig = fileConfig || {};
+    if (typeof fileName != 'string' || typeof fileConfig != 'object') {
+      var groupName = '%c The parameters are not supported, function (fileWriteDS) ';
+      console.group(groupName,
+        'background: #ec0000; font-size: 120%; color: #ffffff'
+      );
+      var message = '%c The parameter(fileName) are supported: string ';
+      console.log(message, 'background: #ec0000; font-size: 120%; color: #ffffff');
+      var message = '%c The parameter(fileConfig) are supported: object ';
+      console.log(message, 'background: #ec0000; font-size: 120%; color: #ffffff');
+      console.groupEnd(groupName);
+      return;
+    }
+    var fs = require('fs');
+    var folderPath = localPath(pathFileDebuggExCodePlugins());
+    if (fs.existsSync(folderPath)) {
+      var pathFile = folderPath + '\\' + fileName + '.js';
+      var pluginName = fileConfig["pluginName"] || 'pluginName';
+      var pluginFileAuthor = fileConfig["fileAuthor"] || 'author';
+      var pluginFileName = fileConfig["fileName"] || fileName;
+      var pluginFileVersion = fileConfig["fileVersion"] || '1.00';
+      var pluginDescription = fileConfig["pluginDescription"] || 'Plugin Description.';
+      var pluginParameterName = fileConfig["pluginParameter"] || 'paramName';
+      var pluginParameterDescription = fileConfig["pluginParameterDescription"] || 'paramDesc';
+      var pluginParameterValueDefault = fileConfig["pluginParameterValue"] || 'paramDefault';
+      var pluginHelpIntroduction = fileConfig["pluginHelpIntroduction"] || 'Plugin introduction.';
+      var pluginNameSpace = fileConfig["pluginNameSpace"] || 'nameSpace';
+      var pluginCodePrefix = fileConfig["pluginCodePrefix"] || '$';
+      var dataFile = [
+        '//===============================================================================' + '\n' +
+        '// ' + pluginName + '\n' +
+        '// By ' + pluginFileAuthor + '\n' +
+        '// ' + pluginFileName + '.js' + '\n' +
+        '// Version: ' + pluginFileVersion + '\n' +
+        '//===============================================================================',
+        '/**:' + '\n' +
+        ' * @plugindesc v' + pluginFileVersion + '- ' + pluginDescription + '\n' + ' *' + '\n' +
+        ' * @author ' + pluginFileAuthor + '\n' + ' *' + '\n' +
+        ' * @param ' + pluginParameterName + '\n' +
+        ' * @desc ' + pluginParameterDescription + '\n' +
+        ' * @default ' + pluginParameterValueDefault + '\n' + ' *' + '\n' +
+        ' * @help' + '\n' +
+        ' * ============================================================================== ' + '\n' +
+        ' *    Introduction' + '\n' +
+        ' * ==============================================================================' + '\n' +
+        ' * ' + pluginHelpIntroduction + '\n' +
+        ' */',
+        '//===============================================================================' + '\n' +
+        '// IMPORT PLUGIN' + '\n' +
+        '//===============================================================================' + '\n' +
+        'var Imported = Imported || {};' + '\n' +
+        'Imported[\"' + pluginName + '\"] = \"1.00\";' + '\n\n' +
+        'var nameSpace = nameSpace || {};' + '\n',
+        '//===============================================================================' + '\n' +
+        '// PLUGINNAME MODULE' + '\n' +
+        '//===============================================================================' + '\n' +
+        '(function(' + pluginCodePrefix + ') {' + '\n' +
+        ' \"use strict\";' + '\n\n' +
+        ' //-----------------------------------------------------------------------------' + '\n' +
+        ' // Parameters' + '\n' +
+        ' //' + '\n' +
+        ' var params = PluginManager.parameters(\'' + pluginFileName + '\');' + '\n' +
+        ' console.log(params)' + '\n' +
+        '})(' + pluginNameSpace + ');',
+        '//===============================================================================' + '\n' +
+        '//           ✰ LZOGAMES ✰ KADOKAWA ✰ Yoji Ojima ✰ Degica ✰' + '\n' +
+        '//==============================================================================='
+      ];
+      fs.writeFileSync(pathFile, dataFile.join('\r\n'));
+      var parameters = {};
+      parameters[pluginParameterName] = pluginParameterValueDefault;
+      var plugin = {
+        "description": 'v' + pluginFileVersion + '- ' + pluginDescription,
+        "name": pluginFileName,
+        "parameters": parameters,
+        "status": true
+      }
+      PluginManager.setupDebugEx(plugin);
+    }
+  };
+
   //-----------------------------------------------------------------------------
   // MVDebug - IMPORT CODE
-  //  
+  //
   MVDebug.scriptRun = scriptsRun;
   MVDebug.fileScanType = fileScanType;
   MVDebug.fileScanFL = fileScanFL;
   MVDebug.runCode = runCode;
+  MVDebug.fileWriteDS = fileWriteDS;
   MVDebug.showfileInFolder = showfileInFolder;
   MVDebug.latestVersion = Imported["GS_debuggEx"];
   MVDebug.releaseDate = '10/20/2017';
-  MVDebug.github = 'https://github.com/GuilhermeSantos001/MVDebug';
+  MVDebug.github = url_github;
   MVDebug.goGithub = goGithub;
   MVDebug.computerUsername = computerUsername;
 
 })(MVDebug);
-//=============================================================================
+//===============================================================================
 //           ✰ LZOGAMES ✰ KADOKAWA ✰ Yoji Ojima ✰ Degica ✰
-//=============================================================================
+//===============================================================================
