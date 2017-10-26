@@ -189,6 +189,8 @@ GS.MVD = MVD;
       marks = '\"';
     } else if (marks == 1) {
       marks = '\'';
+    } else {
+      marks = '\"';
     }
     return marks + this + marks;
   };
