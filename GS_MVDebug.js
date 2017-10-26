@@ -2,10 +2,10 @@
 // MVDebug
 // By LZOGames
 // GS_MVDebug.js
-// Version: 1.06
+// Version: 1.08
 //===============================================================================
 /*:
- * @plugindesc v1.06 - Great utility library that provides to big system debug.
+ * @plugindesc v1.08 - Great utility library that provides to big system debug.
  *
  * @author GuilhermeSantos
  *
@@ -42,7 +42,7 @@
 // IMPORT PLUGIN
 //===============================================================================
 var Imported = Imported || {};
-Imported["GS_debuggEx"] = "1.06";
+Imported["GS_debuggEx"] = "1.08";
 
 var GS = GS || {};
 var MVDebug = {};
@@ -85,6 +85,7 @@ GS.MVD = MVD;
 
   /**
    * @description Setup new plugin.
+   * @param plugin {{}} the new plugin.
    */
   PluginManager.setupDebugEx = function(plugin) {
     if (plugin.status && !this._scripts.contains(plugin.name)) {
@@ -96,6 +97,7 @@ GS.MVD = MVD;
 
   /**
    * @description Load plugin.
+   * @param name {string} name of plugin.
    */
   PluginManager.loadScriptDebugEx = function(name) {
     var url = this._pathDebugEx + '\\' + name + '.js';
@@ -175,6 +177,20 @@ GS.MVD = MVD;
    */
   String.prototype.oneLettertoUpperCase = function() {
     return this[0].toUpperCase() + this.substr(1, this.length);
+  };
+
+  /**
+   * @description Transform into a string with double or single quotation marks.
+   * @param marks {number} {0-1} the number of marks.
+   * @return {string}
+   */
+  String.prototype.toStringMarks = function(marks) {
+    if (marks == 0) {
+      marks = '\"';
+    } else if (marks == 1) {
+      marks = '\'';
+    }
+    return marks + this + marks;
   };
 
   /**
@@ -1187,7 +1203,7 @@ GS.MVD = MVD;
    * @MVDebug {public}
    * @description Create a default struct for new plugin.
    * @param fileName {string} the name of file.
-   * @param fileConfig {object} the config of file.
+   * @param fileConfig {{}} the config of file.
    */
   function fileWriteDS(fileName, fileConfig) {
     fileConfig = fileConfig || {};
@@ -1216,8 +1232,11 @@ GS.MVD = MVD;
       var pluginParameterDescription = fileConfig["pluginParameterDescription"] || 'paramDesc';
       var pluginParameterValueDefault = fileConfig["pluginParameterValue"] || 'paramDefault';
       var pluginHelpIntroduction = fileConfig["pluginHelpIntroduction"] || 'Plugin introduction.';
+      var pluginVariableNameSpace = fileConfig["pluginVariableNameSpace"] || 'VSP';
       var pluginNameSpace = fileConfig["pluginNameSpace"] || 'nameSpace';
       var pluginCodePrefix = fileConfig["pluginCodePrefix"] || '$';
+      var pluginImportedName = fileConfig["pluginImportedName"] || fileName;
+      var useStrict = 'use strict';
       var dataFile = [
         '//===============================================================================' + '\n' +
         '// ' + pluginName + '\n' +
@@ -1241,19 +1260,20 @@ GS.MVD = MVD;
         '// IMPORT PLUGIN' + '\n' +
         '//===============================================================================' + '\n' +
         'var Imported = Imported || {};' + '\n' +
-        'Imported[\"' + pluginName + '\"] = \"1.00\";' + '\n\n' +
-        'var nameSpace = nameSpace || {};' + '\n',
+        'Imported[' + pluginImportedName.toStringMarks(0) + '] = ' + pluginFileVersion.toStringMarks(0) + ';' + '\n\n' +
+        'var ' + pluginVariableNameSpace + ' = ' + pluginVariableNameSpace + ' || {};' + '\n' +
+        pluginVariableNameSpace + '.' + pluginNameSpace + ' = ' + pluginVariableNameSpace + '.' +
+        pluginNameSpace + ' || {};' + '\n',
         '//===============================================================================' + '\n' +
         '// PLUGINNAME MODULE' + '\n' +
         '//===============================================================================' + '\n' +
-        '(function(' + pluginCodePrefix + ') {' + '\n' +
-        ' \"use strict\";' + '\n\n' +
+        '(function(' + pluginCodePrefix + ') {' + '\n' + useStrict.toStringMarks(0) + ';' + '\n\n' +
         ' //-----------------------------------------------------------------------------' + '\n' +
         ' // Parameters' + '\n' +
         ' //' + '\n' +
-        ' var params = PluginManager.parameters(\'' + pluginFileName + '\');' + '\n' +
+        ' var params = PluginManager.parameters(' + pluginFileName.toStringMarks(1) + ');' + '\n' +
         ' console.log(params)' + '\n' +
-        '})(' + pluginNameSpace + ');',
+        '})(' + pluginVariableNameSpace + '.' + pluginNameSpace + ');',
         '//===============================================================================' + '\n' +
         '//           ✰ LZOGAMES ✰ KADOKAWA ✰ Yoji Ojima ✰ Degica ✰' + '\n' +
         '//==============================================================================='

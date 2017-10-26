@@ -66,8 +66,10 @@
     - pluginParameterDescription {string} the description of default parameter.
     - pluginParameterValue {string} the value of default parameter.
     - pluginHelpIntroduction {string} the text for the introduction to default line of help.
+    - pluginVariableNameSpace {string} the global 'nameSpace' of file.
     - pluginNameSpace {string} the 'nameSpace' of file.
     - pluginCodePrefix {string} the 'codePrefix' of file.
+    - pluginImportedName {string} the name to import the plugin.
 
 - fileConfig - Default values
     - pluginName {default} pluginName
@@ -79,5 +81,7 @@
     - pluginParameterDescription {default} paramDesc.
     - pluginParameterValue {default} paramDefault.
     - pluginHelpIntroduction {default} Plugin introduction.
+    - pluginVariableNameSpace {default} VSP
     - pluginNameSpace {default} nameSpace.
     - pluginCodePrefix {default} $.
+    - pluginImportedName {default} the parameter {fileName} of function.

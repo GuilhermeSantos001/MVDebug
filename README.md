@@ -1,8 +1,7 @@
 # MVDebug
 
 - Great utility library that provides to big system debug.
-- The MVDebug (MVD) plugin is a Software Development Kit (SDK) intended to
-help plugin makers by providing a standard way to do debug functions.
+- The MVDebug (MVD) plugin is a Software Development Kit (SDK) intended to help plugin makers by providing a standard way to do debug functions.
 
 # Installation
 
@@ -17,3 +16,7 @@ help plugin makers by providing a standard way to do debug functions.
 # Documentation
 
 - [Documentation](https://github.com/GuilhermeSantos001/MVDebug/blob/master/Documentation.md)
+
+# Extended documentation
+
+- [Extended documentation](https://github.com/GuilhermeSantos001/MVDebug/blob/master/ExtendedDocumentation.md)
