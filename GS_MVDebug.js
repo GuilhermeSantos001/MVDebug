@@ -2,10 +2,10 @@
 // MVDebug
 // By LZOGames
 // GS_MVDebug.js
-// Version: 1.08
+// Version: 1.12
 //===============================================================================
 /*:
- * @plugindesc v1.08 - Great utility library that provides to big system debug.
+ * @plugindesc v1.12 - Great utility library that provides to big system debug.
  *
  * @author GuilhermeSantos
  *
@@ -42,7 +42,7 @@
 // IMPORT PLUGIN
 //===============================================================================
 var Imported = Imported || {};
-Imported["GS_debuggEx"] = "1.08";
+Imported["GS_debuggEx"] = "1.12";
 
 var GS = GS || {};
 var MVDebug = {};
@@ -73,6 +73,13 @@ GS.MVD = MVD;
    * @type {array}
    */
   var scriptsRun = [];
+
+  /** 
+   * @MVDebug {public}
+   * @description Array to save all codes that are being loaded by the plugin.
+   * @type {array}
+   */
+  var scriptsLoad = [];
 
   //-----------------------------------------------------------------------------
   // PluginManager
@@ -139,6 +146,18 @@ GS.MVD = MVD;
 
   console.goGithub = function() {
     goGithub.call(this);
+  };
+
+  console.loadScript = function(fileName, filePath) {
+    loadScript.apply(this, arguments);
+  };
+
+  console.loadScriptExist = function(filePath) {
+    loadScriptExist.apply(this, arguments);
+  };
+
+  console.stopScriptExist = function(fileName, filePath) {
+    stopScriptExist.apply(this, arguments);
   };
 
   /**
@@ -1246,7 +1265,7 @@ GS.MVD = MVD;
         '// ' + pluginFileName + '.js' + '\n' +
         '// Version: ' + pluginFileVersion + '\n' +
         '//===============================================================================',
-        '/**:' + '\n' +
+        '/*\:' + '\n' +
         ' * @plugindesc v' + pluginFileVersion + '- ' + pluginDescription + '\n' + ' *' + '\n' +
         ' * @author ' + pluginFileAuthor + '\n' + ' *' + '\n' +
         ' * @param ' + pluginParameterName + '\n' +
@@ -1257,6 +1276,11 @@ GS.MVD = MVD;
         ' *    Introduction' + '\n' +
         ' * ==============================================================================' + '\n' +
         ' * ' + pluginHelpIntroduction + '\n' +
+        ' * ==============================================================================' + '\n' +
+        ' *    Changelog (1)' + '\n' +
+        ' * ==============================================================================' + '\n' +
+        ' *  Version 1.00:' + '\n' +
+        ' * - Finished Plugin!' + '\n' +
         ' */',
         '//===============================================================================' + '\n' +
         '// IMPORT PLUGIN' + '\n' +
@@ -1267,7 +1291,7 @@ GS.MVD = MVD;
         pluginVariableNameSpace + '.' + pluginNameSpace + ' = ' + pluginVariableNameSpace + '.' +
         pluginNameSpace + ' || {};' + '\n',
         '//===============================================================================' + '\n' +
-        '// PLUGINNAME MODULE' + '\n' +
+        '// ' + pluginName.toUpperCase() + ' MODULE' + '\n' +
         '//===============================================================================' + '\n' +
         '(function(' + pluginCodePrefix + ') {' + '\n' + useStrict.toStringMarks(0) + ';' + '\n\n' +
         ' //-----------------------------------------------------------------------------' + '\n' +
@@ -1293,20 +1317,97 @@ GS.MVD = MVD;
     }
   };
 
+  /** 
+   * @MVDebug {private}
+   * @description Print an error if you cannot load the file.
+   */
+  function onError(e) {
+    var url = e.target._url;
+    throw new Error('Failed to load: ' + url);
+  };
+
+  /** 
+   * @MVDebug {public}
+   * @description Load the file to script.
+   * @param fileName {string} the name of file.
+   * @param filePath {string} the path of file.
+   */
+  function loadScript(fileName, filePath) {
+    var fs = require('fs');
+    var pathFile = localPath(filePath);
+    if (fs.existsSync(pathFile)) {
+      var url = pathFile + '\\' + fileName + '.js';
+      if (fs.existsSync(url)) {
+        if (!loadScriptExist(url)) {
+          var script = document.createElement('script');
+          script.id = url;
+          script.type = 'text/javascript';
+          script.src = url;
+          script.async = false;
+          script.onerror = onError.bind(this);
+          script._url = url;
+          document.body.appendChild(script);
+          scriptsLoad.push(script);
+        }
+      }
+    }
+  };
+
+  /** 
+   * @MVDebug {public}
+   * @description Checks whether the script is already running.
+   * @param filePath {string} the path of file.
+   */
+  function loadScriptExist(filePath) {
+    var existsSyncScript = scriptsLoad.filter(function(script) {
+      if (script === filePath) return true;
+    });
+    return existsSyncScript.length > 0;
+  };
+
+  /** 
+   * @MVDebug {public}
+   * @description Stop the execution of the script.
+   * @param fileName {string} the name of file.
+   * @param filePath {string} the path of file.
+   */
+  function stopScriptExist(fileName, filePath) {
+    var fs = require('fs');
+    var pathFile = localPath(filePath);
+    if (fs.existsSync(pathFile)) {
+      var url = pathFile + '\\' + fileName + '.js';
+      if (fs.existsSync(url)) {
+        var existsSyncScript = scriptsLoad.filter(function(script) {
+          if (script.id === url) return true;
+        });
+        if (existsSyncScript.length > 0) {
+          var scriptId = document.getElementById(url);
+          scriptId.parentElement.removeChild(scriptId);
+          var indexOf = scriptsLoad.indexOf(scriptId);
+          scriptsLoad.splice(indexOf, 1);
+        }
+      }
+    }
+  };
+
   //-----------------------------------------------------------------------------
   // MVDebug - IMPORT CODE
   //
+  MVDebug.latestVersion = Imported["GS_debuggEx"];
+  MVDebug.releaseDate = '10/20/2017';
   MVDebug.scriptRun = scriptsRun;
+  MVDebug.scriptsLoad = scriptsLoad;
   MVDebug.fileScanType = fileScanType;
   MVDebug.fileScanFL = fileScanFL;
   MVDebug.runCode = runCode;
   MVDebug.fileWriteDS = fileWriteDS;
   MVDebug.showfileInFolder = showfileInFolder;
-  MVDebug.latestVersion = Imported["GS_debuggEx"];
-  MVDebug.releaseDate = '10/20/2017';
+  MVDebug.loadScript = loadScript;
+  MVDebug.loadScriptExist = loadScriptExist;
+  MVDebug.stopScriptExist = stopScriptExist;
+  MVDebug.computerUsername = computerUsername;
   MVDebug.github = url_github;
   MVDebug.goGithub = goGithub;
-  MVDebug.computerUsername = computerUsername;
 
 })(MVDebug);
 //===============================================================================

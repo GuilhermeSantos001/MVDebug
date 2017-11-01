@@ -85,3 +85,17 @@
     - pluginNameSpace {default} nameSpace.
     - pluginCodePrefix {default} $.
     - pluginImportedName {default} the parameter {fileName} of function.
+
+- Console.loadScript
+    - Load the file to script.
+    - fileName {string} the name of file.
+    - filePath {string} the path of file.
+
+- Console.loadScriptExist
+    - Checks whether the script is already running.
+    - filePath {string} the path of file.
+
+- Console.stopScriptExist
+    - Stop the execution of the script.
+    - fileName {string} the name of file.
+    - filePath {string} the path of file.
