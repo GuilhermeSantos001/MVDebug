@@ -1,22 +1,22 @@
 # MVDebug
 
-- Great utility library that provides to big system debug.
-- The MVDebug (MVD) plugin is a Software Development Kit (SDK) intended to help plugin makers by providing a standard way to do debug functions.
+- Grande biblioteca de utilitários que fornece uma grande depuração do sistema.
+- O plugin MVDebug(MVD) é um Kit de Desenvolvimento de Software(SDK) destinado a ajudar os fabricantes de plugins, fornecendo uma maneira padrão de fazer funções de depuração.
 
-# Installation
+# Instalação
 
-- [Installation](https://github.com/GuilhermeSantos001/MVDebug/blob/master/Installation.md)
+- [Instalação](https://github.com/GuilhermeSantos001/MVDebug/blob/master/Installation.md)
 
 # MIT License
 
-- A short and simple permissive license with conditions only requiring preservation of copyright and license notices. Licensed works, modifications, and larger works may be distributed under different terms and without source code.
+- Uma licença permissiva curta e simples com condições que apenas exigem a preservação de direitos autorais e avisos de licença. Trabalhos licenciados, modificações e trabalhos maiores podem ser distribuídos sob diferentes termos e sem código fonte.
 
 - [MIT License](https://github.com/GuilhermeSantos001/MVDebug/blob/master/LICENSE)
 
-# Documentation
+# Documentação
 
-- [Documentation](https://github.com/GuilhermeSantos001/MVDebug/blob/master/Documentation.md)
+- [Documentação](https://github.com/GuilhermeSantos001/MVDebug/blob/master/Documentation.md)
 
-# Extended documentation
+# Documentação extensa
 
-- [Extended documentation](https://github.com/GuilhermeSantos001/MVDebug/blob/master/ExtendedDocumentation.md)
+- [Documentação extensa](https://github.com/GuilhermeSantos001/MVDebug/blob/master/ExtendedDocumentation.md)

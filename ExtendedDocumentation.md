@@ -1,25 +1,25 @@
-# Extended documentation
+# Documentação extensa
 
-- Documentation for extended of methods.
+- Documentação para extensões de métodos.
 
 ## PluginManager
 
 - PluginManager._pathDebugEx
-    - The path for folder the plugins.
+    - O caminho para a pasta dos plugins.
 
 - PluginManager.setupDebugEx
-    - Setup new plugin.
-    - plugin {object} the new plugin.
+    - Configure o novo plugin.
+    - plugin {object} o novo plugin.
 
 - PluginManager.loadScriptDebugEx
-    - Load plugin.
-    - name {string} name of plugin.
+    - Carregue o plugin
+    - name {string} nome do plugin
 
 ## String
 
 - String.prototype.oneLettertoUpperCase
-    - Let the first letter in uppercase.
+    - Deixe a primeira letra em maiúscula.
 
 - String.prototype.toStringMarks
-    - Transform into a string with double or single quotation marks.
-    - marks {number} {0-1} the number of marks.
+    - Transforme em uma string com aspas duplas ou simples.
+    - marks {number} {0-1} o número de aspas.

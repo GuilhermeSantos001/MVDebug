@@ -1,17 +1,17 @@
-# Documentation
+# Documentação
 
-- Use this plugin in your project of RPG MAKER MV.
+- Use este plugin no seu projeto de RPG MAKER MV.
 
-- When using the method 'console.runCode' the script cannot be stopped through commands of this plugin.
+- Ao usar o método 'console.runCode', o script não pode ser interrompido através dos comandos deste plugin.
 
 ## Console methods
 
 - Console.fileScanType
-  - Determines the amount of functions, variables, strings, for(loop) and etc.
-  - fileName {string} the name of file.
-  - filePath {string} the path of file.
-  - readType {string} the type of scan.
-  - saveCache {boolean} save in cache the full scan.
+  - Determina a quantidade de funções, variáveis, strings, loops e etc.
+  - fileName {string} o nome do arquivo
+  - filePath {string} o caminho para o arquivo
+  - readType {string} o tipo de varredura
+  - saveCache {boolean} salve no cache a varredura completa.
 
 - ReadTyoe - Valid values
     - function
@@ -26,52 +26,52 @@
     - number
 
 - Console.fileScanFL
-    - Creates a file based on the favorites lines.
-    - fileName {string} the name of file.
-    - filePath {string} the path of file.
-    - FLText {string} the text of favorite lines.
-    - FLTextEnd {string} the end text of favorite lines.
+    - Cria um arquivo com base nas linhas de favoritos.
+    - fileName {string} o nome do arquivo.
+    - filePath {string} o caminho do arquivo.
+    - FLText {string} o texto das linhas favoritas.
+    - FLTextEnd {string} o texto final das linhas favoritas.
 
 - Console.runCode
-    - Runs the scripts are saved in the folder "codeRun"
-    - fullYear {number | array} the year of folder.
-    - fileIndex {number | array} the index of file.
+    - Executa os scripts guardados na pasta "codeRun"
+    - fullYear {number | array} o ano da pasta.
+    - fileIndex {number | array} o índice do arquivo.
 
 - Console.showfileInFolder
-    - Shows the file in folder of project.
-    - fileName {string} the name of file.
-    - filePath {string} the path of file.
-    - fileExtension {string} the extension of file.
+    - Mostra o arquivo na pasta do projeto.
+    - fileName {string} o nome do arquivo.
+    - filePath {string} o caminho do arquivo.
+    - fileExtension {string} a extensão do arquivo.
 
 - Console.computerUsername
-    - Returns the username of the computer.
+    - Retorna o nome de usuário do computador.
 
 - Console.goGithub
-    - Opens the github of script in your default browser.
+    - Abre o github do script no seu navegador padrão.
 
 - Console.fileWriteDS
-    - Create a default struct for new plugin.
-    - fileName {string} the name of file.
-    - fileConfig {object} the config of file.
+    - Crie uma estrutura padrão para o novo plugin.
+    - fileName {string} o nome do arquivo.
+    - fileConfig {object} a configuração do arquivo.
 
-> If you do not set the parameter (fileConfig) he receives the default value given by the system. When you create a default structure for the new plugin, it runs from do after your configuration.
+> Se você não definir o parâmetro (fileConfig) ele recebe o valor padrão fornecido pelo sistema. Quando você cria uma estrutura padrão para o novo plugin, ele é executado depois da configuração.
 
-- fileConfig - Valid elements
-    - pluginName {string} the name of plugin.
-    - fileAuthor {string} the name of author.
-    - fileName {string} the name of file.
-    - fileVersion {string} the version of plugin.
-    - pluginDescription {string} the description of plugin.
-    - pluginParameter {string} the name of default parameter.
-    - pluginParameterDescription {string} the description of default parameter.
-    - pluginParameterValue {string} the value of default parameter.
-    - pluginHelpIntroduction {string} the text for the introduction to default line of help.
-    - pluginVariableNameSpace {string} the global 'nameSpace' of file.
-    - pluginNameSpace {string} the 'nameSpace' of file.
-    - pluginCodePrefix {string} the 'codePrefix' of file.
-    - pluginImportedName {string} the name to import the plugin.
+- fileConfig - Elementos válidos
+    - pluginName {string} o nome do plugin.
+    - fileAuthor {string} o nome do autor
+    - fileName {string} o nome do arquivo
+    - fileVersion {string} a versão do plugin.
+    - pluginDescription {string} a descrição do plugin.
+    - pluginParameter {string} o nome do parâmetro padrão.
+    - pluginParameterDescription {string} a descrição do parâmetro padrão.
+    - pluginParameterValue {string} o valor do parâmetro padrão.
+    - pluginHelpIntroduction {string} O texto para a introdução da linha de ajuda padrão.
+    - pluginVariableNameSpace {string} o 'namespace' global do arquivo.
+    - pluginNameSpace {string} o 'namespace' do arquivo.
+    - pluginCodePrefix {string} o 'códigoPrefixo' do arquivo.
+    - pluginImportedName {string} o nome para importar o plugin.
 
-- fileConfig - Default values
+- fileConfig - Valores padrões
     - pluginName {default} pluginName
     - fileAuthor {default} author.
     - fileName {default} the parameter {fileName} of function.
@@ -87,15 +87,15 @@
     - pluginImportedName {default} the parameter {fileName} of function.
 
 - Console.loadScript
-    - Load the file to script.
-    - fileName {string} the name of file.
-    - filePath {string} the path of file.
+    - Carregue o arquivo no script.
+    - fileName {string} o nome do arquivo.
+    - filePath {string} o caminho do arquivo.
 
 - Console.loadScriptExist
-    - Checks whether the script is already running.
-    - filePath {string} the path of file.
+    - Verifica se o script já está sendo executado.
+    - filePath {string} o caminho do arquivo.
 
 - Console.stopScriptExist
-    - Stop the execution of the script.
-    - fileName {string} the name of file.
-    - filePath {string} the path of file.
+    - Pare a execução do script.
+    - fileName {string} o nome do arquivo.
+    - filePath {string} o caminho do arquivo.
