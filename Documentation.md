@@ -99,3 +99,8 @@
     - Pare a execução do script.
     - fileName {string} o nome do arquivo.
     - filePath {string} o caminho do arquivo.
+    
+- Console.setStepsSprite 
+    - Troque o sprite para capturar o eixo x e y do movimento.
+    - sprite {string} player ou event.
+    - index {number} null ou id do evento
