@@ -2,10 +2,10 @@
 // MVDebug
 // By Dr.Xamã
 // GS_MVDebug.js
-// Version: 1.14
+// Version: 1.15
 //===============================================================================
 /*:
- * @plugindesc v1.14 - Grande biblioteca de utilitários que fornece uma grande 
+ * @plugindesc v1.15 - Grande biblioteca de utilitários que fornece uma grande 
  * depuração do sistema.
  *
  * @author Dr.Xamã
@@ -65,7 +65,7 @@
 // IMPORT PLUGIN
 //===============================================================================
 var Imported = Imported || {};
-Imported["GS_debuggEx"] = "1.14";
+Imported["GS_debuggEx"] = "1.15";
 
 var GS = GS || {};
 var MVDebug = {};
@@ -181,6 +181,119 @@ GS.MVD = MVD;
     }
   };
 
+  //-------------------------------------------------------------------------------
+  // Scene_Map
+  //
+
+  /**
+   * A hash table to convert from a virtual key code to a mapped key name.
+   *
+   * @static
+   * @property keyMapper
+   * @type Object
+   */
+  Object.defineProperties(Input.keyMapper, {
+    16: {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: 'shift'
+    },
+    18: {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: 'alt'
+    },
+    70: {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: 'f'
+    }
+  });
+
+  Scene_Map._showStepsXy = {
+    'sprite': new Sprite(new Bitmap(240, 100)),
+    'keyAction': false,
+    'keyDelay': [0, 5],
+    'child': false,
+    'stepsSprite': ['player', 0]
+  };
+
+  const __scene_map_update = Scene_Map.prototype.update;
+  Scene_Map.prototype.update = function () {
+    __scene_map_update.call(this);
+    this.updateStepButton();
+    this.updateStepXy();
+  };
+
+  Scene_Map.prototype.updateStepButton = function () {
+    if (Scene_Map._showStepsXy.keyAction) {
+      if (Scene_Map._showStepsXy.keyDelay[0] > 0)
+        return Scene_Map._showStepsXy.keyDelay[0]--;
+    }
+    if (Input.isPressed('shift') && Input.isPressed('alt')) {
+      if (Input.isTriggered('f')) {
+        if (!Scene_Map._showStepsXy.keyAction) {
+          Scene_Map._showStepsXy.keyAction = true;
+          Scene_Map._showStepsXy.keyDelay[0] = Scene_Map._showStepsXy.keyDelay[1];
+        } else
+          Scene_Map._showStepsXy.keyAction = false;
+      }
+    }
+  };
+
+  Scene_Map.prototype.updateStepXy = function () {
+    if (Scene_Map._showStepsXy.keyAction) {
+      if (!Scene_Map._showStepsXy.child) {
+        Scene_Map._showStepsXy.child = true;
+        let sprite = Scene_Map._showStepsXy.sprite;
+        let bitmap = sprite.bitmap;
+        let x = SceneManager._screenWidth - (sprite.width + 5);
+        sprite.move(x, 5);
+        this.addChild(sprite);
+      } else {
+        let sprite = Scene_Map._showStepsXy.sprite;
+        let bitmap = sprite.bitmap;
+        bitmap.clear();
+        bitmap.paintOpacity = 60;
+        bitmap.fillAll('black');
+        bitmap.paintOpacity = 255;
+        bitmap.fontSize = 18;
+        if (Scene_Map._showStepsXy.stepsSprite[0] == 'player') {
+          var ty1 = bitmap.height - 15;
+          var ty2 = 30;
+          bitmap.drawText(`TileX: ${$gamePlayer._x}`, 0, ty2, bitmap.width, 0, 'center');
+          bitmap.drawText(`TileY: ${$gamePlayer._y}`, 0, ty2 + 25, bitmap.width, 0, 'center');
+          bitmap.fontSize = 12;
+          bitmap.drawText('MVDebug - Movimento(Player)', 0, ty1, bitmap.width, 0, 'center');
+        } else if (Scene_Map._showStepsXy.stepsSprite[0] == 'event') {
+          var ty1 = bitmap.height - 15;
+          var ty2 = 30;
+          var eventId = Scene_Map._showStepsXy.stepsSprite[1];
+          if (!$gameMap.event(eventId)) {
+            ty2 += 20;
+            bitmap.fontSize = 14;
+            return bitmap.drawText(`Evento(${eventId}) não existe!`, 0, ty2, bitmap.width, 0, 'center');
+          }
+          bitmap.drawText(`TileX: ${$gameMap.event(eventId)._x}`, 0, ty2, bitmap.width, 0, 'center');
+          bitmap.drawText(`TileY: ${$gameMap.event(eventId)._y}`, 0, ty2 + 25, bitmap.width, 0, 'center');
+          bitmap.fontSize = 12;
+          bitmap.drawText(`MVDebug - Movimento(Evento(${eventId}))`, 0, ty1, bitmap.width, 0, 'center');
+        }
+      }
+    } else {
+      if (Scene_Map._showStepsXy.child) {
+        Scene_Map._showStepsXy.child = false;
+        let sprite = Scene_Map._showStepsXy.sprite;
+        let bitmap = sprite.bitmap;
+        bitmap.clear();
+        this.removeChild(sprite);
+      }
+    }
+  };
+
   //-----------------------------------------------------------------------------
   // Console
   //
@@ -222,6 +335,10 @@ GS.MVD = MVD;
 
   console.stopScriptExist = function (fileName, filePath) {
     stopScriptExist.apply(this, arguments);
+  };
+
+  console.setStepsSprite = function (sprite, index) {
+    Scene_Map._showStepsXy.stepsSprite = [sprite || 'player', index || 0];
   };
 
   /**
@@ -1443,7 +1560,7 @@ GS.MVD = MVD;
   //
   MVDebug.latestVersion = Imported["GS_debuggEx"];
   MVDebug.releaseDate = '20/10/2017';
-  MVDebug.updateDate = '04/03/2018';
+  MVDebug.updateDate = '06/03/2018';
   MVDebug.scriptRun = scriptsRun;
   MVDebug.scriptsLoad = scriptsLoad;
   MVDebug.fileScanType = fileScanType;
@@ -1457,6 +1574,7 @@ GS.MVD = MVD;
   MVDebug.computerUsername = computerUsername;
   MVDebug.github = url_github;
   MVDebug.goGithub = goGithub;
+  MVDebug.setStepsSprite = console.setStepsSprite;
 
 })(MVDebug);
 //===============================================================================
